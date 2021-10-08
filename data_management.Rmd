@@ -1,0 +1,135 @@
+---
+title: "Data Management"
+output: github_document
+---
+
+```{r setup, include = FALSE}
+
+pacman::p_load(
+  rio,        # importing data  
+  here,       # relative file pathways  
+  janitor,    # data cleaning and tables
+  lubridate,  # working with dates
+  epikit,     # age_categories() function
+  tidyverse   # data management and visualization
+)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+set.seed(1)
+```
+
+## Load Linelist
+
+```{r}
+linelist_raw <- import("./data/linelist_raw.xlsx") 
+
+linelist <- linelist_raw %>%
+  janitor::clean_names() %>%
+  rename(
+    date_infection = infection_date,
+    date_hospitalization = hosp_date,
+    date_outcome = date_of_outcome
+  )
+
+#Review
+skimr::skim(linelist_raw)
+
+#Look at column names
+names(linelist_raw)
+
+#Can reference column name with spaces using back-ticks ex: linelist$`x60\infection date\x60`
+```
+
+
+Manipulate Columns
+
+```{r}
+# select
+linelist %>%
+  select(case_id, date_onset, date_hospitalization, fever) %>%
+  names()
+
+# everything- move onset and hospitaliation to front
+linelist %>%
+  select(date_onset, date_hospitalization, everything()) %>%
+  names()
+
+# select columns that are class numeric
+linelist %>%
+  select(where(is.numeric)) %>%
+  names()
+
+# select columns containing certain characters
+linelist %>%
+  select(contains("date")) %>%
+  names()
+
+# searched for multiple character matches- needs to be exact or will generate an error
+linelist %>%
+  select(matches("onset|hosp|fev")) %>%
+  names()
+
+# consider using any_of to search for columns that may or may not exist
+linelist %>%
+  select(any_of(c("date_onset","village_origin","village_detection","village_residence","village_travel"))) %>%
+  names()
+
+# remove columns
+linelist %>%
+  select(-c(date_onset, fever:vomit)) %>%
+  names()
+
+
+# create new linelist with id and age-realted columns
+linelist_age <- select(linelist, case_id, contains("age"))
+
+names(linelist_age)
+
+```
+
+
+Addition to pipe chain
+
+```{r}
+linelist <- linelist_raw %>%
+  janitor::clean_names() %>%
+  rename(date_infection       = infection_date,
+           date_hospitalisation = hosp_date,
+           date_outcome         = date_of_outcome) %>%
+  select(-c(row_num, merged_header, x28)) %>%
+  distinct()
+```
+
+New Columns
+
+```{r}
+new_col_demo <- linelist %>%                       
+  mutate(
+    new_var_dup    = case_id,             # new column = duplicate/copy another existing column
+    new_var_static = 7,                   # new column = all values the same
+    new_var_static = new_var_static + 5,  # you can overwrite a column, and it can be a calculation using other variables
+    new_var_paste  = stringr::str_glue("{hospital} on ({date_hospitalisation})") # new column = pasting together values from other columns
+    ) %>% 
+  select(case_id, hospital, date_hospitalisation, contains("new"))        # show only new columns, for demonstration purposes
+
+linelist <- linelist %>%
+  select(-contains("new_var"))
+```
+
+
+
+
