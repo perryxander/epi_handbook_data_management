@@ -130,6 +130,116 @@ linelist <- linelist %>%
   select(-contains("new_var"))
 ```
 
+Grouped Data
+
+```{r}
+class(linelist$age)
+
+linelist <- linelist %>%
+  mutate(age = as.numeric(age))
+
+# age normalized to mean of all rows
+linelist %>%
+  mutate(age_norm = age / mean(age, na.rm = T))
+
+# age normalized to mean of hospital group
+linelist %>%
+  group_by(hospital) %>%
+  mutate(age_norm = age / mean(age, na.rm = T))
+```
+
+
+Transform multiple columns
+
+across()
+
+```{r}
+# specify argument .cols = and the function(s) to apply to .fns
+
+# as.character applied to specific columns named within across()
+linelist <- linelist %>%
+  mutate(across(.cols = c(temp, ht_cm, wt_kg), .fns = as.character))
+
+# change all columns to character class
+linelist <- linelist %>%
+  mutate(across(.cols = everything(), .fns = as.character))
+         
+# to change all columns to character class
+linelist <- linelist %>%
+  mutate(across(.cols = contains("date"), .fns = as.character))
+
+# apply date function to posixct objects
+linelist <- linelist %>%
+  mutate(across(.cols = where(is.POSIXct), .fns = as.Date))
+```
+
+
+coalesce()
+
+```{r}
+village_detection <- c("a","b",NA, NA)
+village_residence <- c("a","b","a","d")
+
+village <- coalesce(village_detection, village_residence)
+village
+
+```
+
+cumulative math
+
+```{r}
+cumsum(c(2,4,15,10))
+
+cumulative_case_counts <- linelist %>%
+  count(date_onset) %>%
+  mutate(cumulative_cases = cumsum(n))
+
+head(cumulative_case_counts, 10)
+```
+
+
+add to pipe chain
+
+```{r}
+linelist <- linelist_raw %>%
+    
+    janitor::clean_names() %>% 
+
+    rename(date_infection       = infection_date,
+           date_hospitalisation = hosp_date,
+           date_outcome         = date_of_outcome) %>% 
+    
+    select(-c(row_num, merged_header, x28)) %>% 
+    distinct() %>% 
+  
+    mutate(bmi = wt_kg / (ht_cm/100)^2) %>% 
+  
+    mutate(across(contains("date"), as.Date), 
+           generation = as.numeric(generation),
+           age        = as.numeric(age)) 
+```
+
+# Re-code values
+
+Specific changes
+
+```{r}
+#linelist <- linelist %>% 
+  #mutate(date_onset = recode(date_onset, "2014-14-15" = "2014-04-15"))
+
+table(linelist$hospital, useNA = "always")
+
+linelist <- linelist %>%
+  mutate(hospital = recode(hospital,
+                      "Mitylira Hopital"  = "Military Hospital",
+                      "Mitylira Hospital" = "Military Hospital",
+                      "Military Hopital"  = "Military Hospital",
+                      "Port Hopital"      = "Port Hospital",
+                      "Central Hopital"   = "Central Hospital",
+                      "other"             = "Other",
+                      "St. Marks Maternity Hopital (SMMH)" = "St. Mark's Maternity Hospital (SMMH)"
+                      ))
+```
 
 
 
