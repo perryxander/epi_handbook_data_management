@@ -241,5 +241,188 @@ linelist <- linelist %>%
                       ))
 ```
 
+By Logic
+
+```{r}
+## Simple Logic
+
+# Example: change gender of one specific observation to "Female"
+
+# replace()
+linelist <- linelist %>%
+  mutate(gender = replace(gender, case_id == "2195","Female"))
+
+# ifelse() and if_else()
+linelist <- linelist %>%
+  mutate(source_known = ifelse(!is.na(source), "known","unknown"))
+
+# Create a date of death column, which is NA if patient has not died
+linelist <- linelist %>%
+  mutate(date_death = if_else(outcome == "Death", date_outcome,NA_real_))
+
+
+## Complex Logic
+linelist <- linelist %>%
+  mutate(age_years = case_when(
+    age_unit == "years"  ~ age,       # if age is given in years
+    age_unit == "months" ~ age/12,    # if age is given in months
+    is.na(age_unit)      ~ age,       # if age unit is missing
+    TRUE                 ~ NA_real_)) # any other circumstance, assign missing
+```
+
+
+Missing Values
+
+```{r}
+# replace_na()
+linelist <- linelist %>%
+  mutate(hospital = replace_na(hospital, "Missing"))
+
+# fct_explicit_na()- deals specifically with factors
+linelist %>%
+  mutate(hospital = fct_explicit_na(hospital))
+
+# na_if()- convert specific value to NA
+linelist <- linelist %>%
+  mutate(hospital = na_if(hospital, "Missing"))
+
+# na_if() cannot be used with logical criteria- use replace() or case_when() for this
+
+# Convert temperatures above 40 to NA
+linelist <- linelist %>%
+  mutate(temp = replace(temp, temp > 40, NA))
+
+# Convert onset dates earlier than 1 Jan 2000 to missing
+linelist <- linelist %>%
+  mutate(date_onset = replace(date_onset, date_onset > as.Date("2000-01-01"),NA))
+```
+
+Cleaning Dictionary
+
+```{r}
+cleaning_dict <- import("https://github.com/appliedepi/epirhandbook_eng/raw/master/data/case_linelists/cleaning_dict.csv")
+
+# cleaning_dict <- import("cleaning_dict.csv")- use if file saved locally
+
+linelist <- linelist %>%
+  linelist::clean_variable_spelling(
+    wordlists = cleaning_dict,
+    spelling_vars = "col",       # dict column containing column names, defaults to 3rd column in dict
+  )
+
+```
+
+
+Add to pipe chain
+
+```{r}
+
+linelist <- linelist_raw %>%
+    
+    # standardize column name syntax
+    janitor::clean_names() %>% 
+    
+    # manually re-name column
+  
+    rename(date_infection       = infection_date,
+           date_hospitalisation = hosp_date,
+           date_outcome         = date_of_outcome) %>% 
+    
+    # remove column
+    select(-c(row_num, merged_header, x28)) %>% 
+  
+    # de-duplicate
+    distinct() %>% 
+  
+    # add column
+    mutate(bmi = wt_kg / (ht_cm/100)^2) %>%     
+
+    # convert class of columns
+    mutate(across(contains("date"), as.Date), 
+           generation = as.numeric(generation),
+           age        = as.numeric(age)) %>% 
+    
+    # add column: delay to hospitalisation
+    mutate(days_onset_hosp = as.numeric(date_hospitalisation - date_onset)) %>% 
+
+    # clean values of hospital column
+    mutate(hospital = recode(hospital,
+                      # OLD = NEW
+                      "Mitylira Hopital"  = "Military Hospital",
+                      "Mitylira Hospital" = "Military Hospital",
+                      "Military Hopital"  = "Military Hospital",
+                      "Port Hopital"      = "Port Hospital",
+                      "Central Hopital"   = "Central Hospital",
+                      "other"             = "Other",
+                      "St. Marks Maternity Hopital (SMMH)" = "St. Mark's Maternity Hospital (SMMH)"
+                      )) %>% 
+    
+    mutate(hospital = replace_na(hospital, "Missing")) %>% 
+
+    # create age_years column (from age and age_unit)
+    mutate(age_years = case_when(
+          age_unit == "years" ~ age,
+          age_unit == "months" ~ age/12,
+          is.na(age_unit) ~ age,
+          TRUE ~ NA_real_))
+```
+
+
+## Numeric Categories
+
+```{r}
+# examine distribution of linelist variable age
+hist(linelist$age_years)
+
+summary(linelist$age_years, na.rm=T)
+
+# age_categories
+pacman::p_load(epikit)                     # load package
+
+linelist <- linelist %>%
+  mutate(
+    age_cat = age_categories(
+      age_years,                           # numeric column to make groups from
+      breakers = c(0, 5, 10, 15, 20,       # break points
+                   30, 40, 50, 60, 70),
+      separator = "-"))                    # separator is "-" by default
+
+# show table
+table(linelist$age_cat, useNA = "always")
+
+# With ceiling set to TRUE
+##########################
+linelist <- linelist %>% 
+  mutate(
+    age_cat = age_categories(
+      age_years, 
+      breakers = c(0, 5, 10, 15, 20, 30, 40, 50, 60, 70),
+      ceiling = TRUE)) # 70 is ceiling, all above become NA
+
+# show table
+table(linelist$age_cat, useNA = "always")
+
+# using lower, upper, and by
+linelist <- linelist %>%
+  mutate(
+    age_cat = age_categories(
+      age_years,
+      lower = 0,
+      upper = 100,
+      by = 10))
+
+# show table
+table(linelist$age_cat, useNA = "always")
+```
+
+cut()
+
+```{r}
+
+```
+
+
+
+
 
 
