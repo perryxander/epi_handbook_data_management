@@ -33223,3 +33223,592 @@ table(linelist$age_cat, useNA = "always")
     ##  2450  1875  1216   597   251    78    27     6     1     0     0   107
 
 cut()
+
+``` r
+# Create new variable, by cutting the numeric age variable
+# lower break is excluded but upper break is included in each category
+linelist <- linelist %>% 
+  mutate(
+    age_cat = cut(
+      age_years,
+      breaks = c(0, 5, 10, 15, 20,
+                 30, 50, 70, 100),
+      include.lowest = TRUE         # include 0 in lowest group
+      ))
+
+# tabulate the number of observations per group
+table(linelist$age_cat, useNA = "always")
+```
+
+    ## 
+    ##    [0,5]   (5,10]  (10,15]  (15,20]  (20,30]  (30,50]  (50,70] (70,100] 
+    ##     1469     1195     1040      770     1149      778       94        6 
+    ##     <NA> 
+    ##      107
+
+``` r
+# Cross tabulation of the numeric and category columns. 
+table("Numeric Values" = linelist$age_years,   # names specified in table for clarity.
+      "Categories"     = linelist$age_cat,
+      useNA = "always") 
+```
+
+    ##                     Categories
+    ## Numeric Values       [0,5] (5,10] (10,15] (15,20] (20,30] (30,50] (50,70]
+    ##   0                    136      0       0       0       0       0       0
+    ##   0.0833333333333333     1      0       0       0       0       0       0
+    ##   0.25                   2      0       0       0       0       0       0
+    ##   0.333333333333333      6      0       0       0       0       0       0
+    ##   0.416666666666667      1      0       0       0       0       0       0
+    ##   0.5                    6      0       0       0       0       0       0
+    ##   0.583333333333333      3      0       0       0       0       0       0
+    ##   0.666666666666667      3      0       0       0       0       0       0
+    ##   0.75                   3      0       0       0       0       0       0
+    ##   0.833333333333333      1      0       0       0       0       0       0
+    ##   0.916666666666667      1      0       0       0       0       0       0
+    ##   1                    275      0       0       0       0       0       0
+    ##   1.5                    2      0       0       0       0       0       0
+    ##   2                    308      0       0       0       0       0       0
+    ##   3                    246      0       0       0       0       0       0
+    ##   4                    233      0       0       0       0       0       0
+    ##   5                    242      0       0       0       0       0       0
+    ##   6                      0    241       0       0       0       0       0
+    ##   7                      0    256       0       0       0       0       0
+    ##   8                      0    239       0       0       0       0       0
+    ##   9                      0    245       0       0       0       0       0
+    ##   10                     0    214       0       0       0       0       0
+    ##   11                     0      0     220       0       0       0       0
+    ##   12                     0      0     224       0       0       0       0
+    ##   13                     0      0     191       0       0       0       0
+    ##   14                     0      0     199       0       0       0       0
+    ##   15                     0      0     206       0       0       0       0
+    ##   16                     0      0       0     186       0       0       0
+    ##   17                     0      0       0     164       0       0       0
+    ##   18                     0      0       0     141       0       0       0
+    ##   19                     0      0       0     130       0       0       0
+    ##   20                     0      0       0     149       0       0       0
+    ##   21                     0      0       0       0     158       0       0
+    ##   22                     0      0       0       0     149       0       0
+    ##   23                     0      0       0       0     125       0       0
+    ##   24                     0      0       0       0     144       0       0
+    ##   25                     0      0       0       0     107       0       0
+    ##   26                     0      0       0       0     100       0       0
+    ##   27                     0      0       0       0     117       0       0
+    ##   28                     0      0       0       0      85       0       0
+    ##   29                     0      0       0       0      82       0       0
+    ##   30                     0      0       0       0      82       0       0
+    ##   31                     0      0       0       0       0      68       0
+    ##   32                     0      0       0       0       0      84       0
+    ##   33                     0      0       0       0       0      78       0
+    ##   34                     0      0       0       0       0      58       0
+    ##   35                     0      0       0       0       0      58       0
+    ##   36                     0      0       0       0       0      33       0
+    ##   37                     0      0       0       0       0      46       0
+    ##   38                     0      0       0       0       0      45       0
+    ##   39                     0      0       0       0       0      45       0
+    ##   40                     0      0       0       0       0      32       0
+    ##   41                     0      0       0       0       0      34       0
+    ##   42                     0      0       0       0       0      26       0
+    ##   43                     0      0       0       0       0      31       0
+    ##   44                     0      0       0       0       0      24       0
+    ##   45                     0      0       0       0       0      27       0
+    ##   46                     0      0       0       0       0      25       0
+    ##   47                     0      0       0       0       0      16       0
+    ##   48                     0      0       0       0       0      21       0
+    ##   49                     0      0       0       0       0      15       0
+    ##   50                     0      0       0       0       0      12       0
+    ##   51                     0      0       0       0       0       0      13
+    ##   52                     0      0       0       0       0       0       7
+    ##   53                     0      0       0       0       0       0       4
+    ##   54                     0      0       0       0       0       0       6
+    ##   55                     0      0       0       0       0       0       9
+    ##   56                     0      0       0       0       0       0       7
+    ##   57                     0      0       0       0       0       0       9
+    ##   58                     0      0       0       0       0       0       6
+    ##   59                     0      0       0       0       0       0       5
+    ##   60                     0      0       0       0       0       0       4
+    ##   61                     0      0       0       0       0       0       2
+    ##   62                     0      0       0       0       0       0       1
+    ##   63                     0      0       0       0       0       0       5
+    ##   64                     0      0       0       0       0       0       1
+    ##   65                     0      0       0       0       0       0       5
+    ##   66                     0      0       0       0       0       0       3
+    ##   67                     0      0       0       0       0       0       2
+    ##   68                     0      0       0       0       0       0       1
+    ##   69                     0      0       0       0       0       0       3
+    ##   70                     0      0       0       0       0       0       1
+    ##   72                     0      0       0       0       0       0       0
+    ##   73                     0      0       0       0       0       0       0
+    ##   76                     0      0       0       0       0       0       0
+    ##   84                     0      0       0       0       0       0       0
+    ##   <NA>                   0      0       0       0       0       0       0
+    ##                     Categories
+    ## Numeric Values       (70,100] <NA>
+    ##   0                         0    0
+    ##   0.0833333333333333        0    0
+    ##   0.25                      0    0
+    ##   0.333333333333333         0    0
+    ##   0.416666666666667         0    0
+    ##   0.5                       0    0
+    ##   0.583333333333333         0    0
+    ##   0.666666666666667         0    0
+    ##   0.75                      0    0
+    ##   0.833333333333333         0    0
+    ##   0.916666666666667         0    0
+    ##   1                         0    0
+    ##   1.5                       0    0
+    ##   2                         0    0
+    ##   3                         0    0
+    ##   4                         0    0
+    ##   5                         0    0
+    ##   6                         0    0
+    ##   7                         0    0
+    ##   8                         0    0
+    ##   9                         0    0
+    ##   10                        0    0
+    ##   11                        0    0
+    ##   12                        0    0
+    ##   13                        0    0
+    ##   14                        0    0
+    ##   15                        0    0
+    ##   16                        0    0
+    ##   17                        0    0
+    ##   18                        0    0
+    ##   19                        0    0
+    ##   20                        0    0
+    ##   21                        0    0
+    ##   22                        0    0
+    ##   23                        0    0
+    ##   24                        0    0
+    ##   25                        0    0
+    ##   26                        0    0
+    ##   27                        0    0
+    ##   28                        0    0
+    ##   29                        0    0
+    ##   30                        0    0
+    ##   31                        0    0
+    ##   32                        0    0
+    ##   33                        0    0
+    ##   34                        0    0
+    ##   35                        0    0
+    ##   36                        0    0
+    ##   37                        0    0
+    ##   38                        0    0
+    ##   39                        0    0
+    ##   40                        0    0
+    ##   41                        0    0
+    ##   42                        0    0
+    ##   43                        0    0
+    ##   44                        0    0
+    ##   45                        0    0
+    ##   46                        0    0
+    ##   47                        0    0
+    ##   48                        0    0
+    ##   49                        0    0
+    ##   50                        0    0
+    ##   51                        0    0
+    ##   52                        0    0
+    ##   53                        0    0
+    ##   54                        0    0
+    ##   55                        0    0
+    ##   56                        0    0
+    ##   57                        0    0
+    ##   58                        0    0
+    ##   59                        0    0
+    ##   60                        0    0
+    ##   61                        0    0
+    ##   62                        0    0
+    ##   63                        0    0
+    ##   64                        0    0
+    ##   65                        0    0
+    ##   66                        0    0
+    ##   67                        0    0
+    ##   68                        0    0
+    ##   69                        0    0
+    ##   70                        0    0
+    ##   72                        1    0
+    ##   73                        3    0
+    ##   76                        1    0
+    ##   84                        1    0
+    ##   <NA>                      0  107
+
+``` r
+## Relabeling NA values ##
+
+# cut() creates age_cat, automatically of class Factor      
+linelist <- linelist %>%   
+
+  mutate(age_cat = cut(
+    age_years,
+    breaks = c(0, 5, 10, 15, 20, 30, 50, 70, 100),          
+    right = FALSE,
+    include.lowest = TRUE,        
+    labels = c("0-4", "5-9", "10-14", "15-19", "20-29", "30-49", "50-69", "70-100")),
+         
+    # make missing values explicit
+    age_cat = fct_explicit_na(
+      age_cat,
+      na_level = "Missing age")  # you can specify the label
+  )    
+
+# table to view counts
+table(linelist$age_cat, useNA = "always")
+```
+
+    ## 
+    ##         0-4         5-9       10-14       15-19       20-29       30-49 
+    ##        1227        1223        1048         827        1216         848 
+    ##       50-69      70-100 Missing age        <NA> 
+    ##         105           7         107           0
+
+``` r
+## Quickly make breaks and labels ##
+
+# Make break points from 0 to 90 by 5
+age_seq = seq(from = 0, to = 90, by = 5)
+age_seq
+```
+
+    ##  [1]  0  5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90
+
+``` r
+# Make labels for the above categories, assuming default cut() settings
+age_labels = paste0(age_seq + 1, "-", age_seq + 5)
+age_labels
+```
+
+    ##  [1] "1-5"   "6-10"  "11-15" "16-20" "21-25" "26-30" "31-35" "36-40" "41-45"
+    ## [10] "46-50" "51-55" "56-60" "61-65" "66-70" "71-75" "76-80" "81-85" "86-90"
+    ## [19] "91-95"
+
+``` r
+# check that both vectors are the same length
+length(age_seq) == length(age_labels)
+```
+
+    ## [1] TRUE
+
+Quantile breaks
+
+``` r
+quantile(linelist$age_years,                       # specify numeric vector
+         probs = c(0, .25, .50, .75, .90, .95),    # specify the percentiles you want
+         na.rm = TRUE)    
+```
+
+    ##  0% 25% 50% 75% 90% 95% 
+    ##   0   6  13  23  33  41
+
+``` r
+# ignore missing values 
+
+linelist %>%                                # begin with linelist
+  mutate(deciles = cut(age_years,           # create new column decile as cut() on column age_years
+    breaks = quantile(                      # define cut breaks using quantile()
+      age_years,                               # operate on age_years
+      probs = seq(0, 1, by = 0.1),             # 0.0 to 1.0 by 0.1
+      na.rm = TRUE),                           # ignore missing values
+    include.lowest = TRUE)) %>%             # for cut() include age 0
+  janitor::tabyl(deciles)                   # pipe to table to display
+```
+
+    ##  deciles   n    percent valid_percent
+    ##    [0,2] 748 0.11319613    0.11505922
+    ##    (2,5] 721 0.10911017    0.11090601
+    ##    (5,7] 497 0.07521186    0.07644978
+    ##   (7,10] 698 0.10562954    0.10736810
+    ##  (10,13] 635 0.09609564    0.09767728
+    ##  (13,17] 755 0.11425545    0.11613598
+    ##  (17,21] 578 0.08746973    0.08890940
+    ##  (21,26] 625 0.09458232    0.09613906
+    ##  (26,33] 596 0.09019370    0.09167820
+    ##  (33,84] 648 0.09806295    0.09967697
+    ##     <NA> 107 0.01619249            NA
+
+Evenly-sized groups
+
+``` r
+# make groups with ntile()
+ntile_data <- linelist %>% 
+  mutate(even_groups = ntile(age_years, 10))
+
+# make table of counts and proportions by group
+ntile_table <- ntile_data %>% 
+  janitor::tabyl(even_groups)
+  
+# attach min/max values to demonstrate ranges
+ntile_ranges <- ntile_data %>% 
+  group_by(even_groups) %>% 
+  summarise(
+    min = min(age_years, na.rm=T),
+    max = max(age_years, na.rm=T)
+  )
+```
+
+    ## Warning in min(age_years, na.rm = T): no non-missing arguments to min; returning
+    ## Inf
+
+    ## Warning in max(age_years, na.rm = T): no non-missing arguments to max; returning
+    ## -Inf
+
+``` r
+# combine and print - note that values are present in multiple groups
+left_join(ntile_table, ntile_ranges, by = "even_groups")
+```
+
+    ##  even_groups   n    percent valid_percent min  max
+    ##            1 651 0.09851695    0.10013844   0    2
+    ##            2 650 0.09836562    0.09998462   2    5
+    ##            3 650 0.09836562    0.09998462   5    7
+    ##            4 650 0.09836562    0.09998462   7   10
+    ##            5 650 0.09836562    0.09998462  10   13
+    ##            6 650 0.09836562    0.09998462  13   17
+    ##            7 650 0.09836562    0.09998462  17   21
+    ##            8 650 0.09836562    0.09998462  21   26
+    ##            9 650 0.09836562    0.09998462  26   33
+    ##           10 650 0.09836562    0.09998462  33   84
+    ##           NA 107 0.01619249            NA Inf -Inf
+
+Add to pipe chain
+
+``` r
+linelist <- linelist_raw %>%
+    
+    janitor::clean_names() %>% 
+    
+    rename(date_infection       = infection_date,
+           date_hospitalisation = hosp_date,
+           date_outcome         = date_of_outcome) %>% 
+    
+    select(-c(row_num, merged_header, x28)) %>% 
+  
+    distinct() %>% 
+
+    mutate(bmi = wt_kg / (ht_cm/100)^2) %>%     
+
+    mutate(across(contains("date"), as.Date), 
+           generation = as.numeric(generation),
+           age        = as.numeric(age)) %>% 
+    
+    mutate(days_onset_hosp = as.numeric(date_hospitalisation - date_onset)) %>% 
+    
+    mutate(hospital = recode(hospital,
+                      
+                      "Mitylira Hopital"  = "Military Hospital",
+                      "Mitylira Hospital" = "Military Hospital",
+                      "Military Hopital"  = "Military Hospital",
+                      "Port Hopital"      = "Port Hospital",
+                      "Central Hopital"   = "Central Hospital",
+                      "other"             = "Other",
+                      "St. Marks Maternity Hopital (SMMH)" = "St. Mark's Maternity Hospital (SMMH)"
+                      )) %>% 
+    
+    mutate(hospital = replace_na(hospital, "Missing")) %>% 
+
+    mutate(age_years = case_when(
+          age_unit == "years" ~ age,
+          age_unit == "months" ~ age/12,
+          is.na(age_unit) ~ age,
+          TRUE ~ NA_real_)) %>% 
+  
+    mutate(
+          # age categories: custom
+          age_cat = epikit::age_categories(age_years, breakers = c(0, 5, 10, 15, 20, 30, 50, 70)),
+        
+          # age categories: 0 to 85 by 5s
+          age_cat5 = epikit::age_categories(age_years, breakers = seq(0, 85, 5)))
+```
+
+Add rows
+
+``` r
+# Manually adding row
+
+linelist <- linelist %>% 
+  add_row(row_num = 666,
+          case_id = "abc",
+          generation = 4,
+          `infection date` = as.Date("2020-10-10"),
+          .before = 2)  # specifies where to add row
+```
+
+filter by row
+
+``` r
+# View first 100 rows
+linelist %>% head(100)     # or use tail() to see the n last rows
+
+# Show row 5 only
+linelist %>% filter(row_number() == 5)
+
+# View rows 2 through 20, and three specific columns
+linelist %>% filter(row_number() %in% 2:20) %>% select(date_onset, outcome, age)
+```
+
+Design the filter
+
+``` r
+table(Hospital  = linelist$hospital,                     # hospital name
+      YearOnset = lubridate::year(linelist$date_onset),  # year of date_onset
+      useNA     = "always")                              # show missing values
+```
+
+    ##                                       YearOnset
+    ## Hospital                               2012 2013 2014 2015 <NA>
+    ##   Central Hospital                        0    0  351   99   18
+    ##   Hospital A                            229   46    0    0   15
+    ##   Hospital B                            227   47    0    0   15
+    ##   Military Hospital                       0    0  676  200   34
+    ##   Missing                                 0    0 1117  318   77
+    ##   Other                                   0    0  684  177   46
+    ##   Port Hospital                           9    1 1372  347   75
+    ##   St. Mark's Maternity Hospital (SMMH)    0    0  322   93   13
+    ##   <NA>                                    0    0    0    0    0
+
+Add to pipe chain
+
+``` r
+# CLEANING 'PIPE' CHAIN (starts with raw data and pipes it through cleaning steps)
+##################################################################################
+
+# begin cleaning pipe chain
+###########################
+linelist <- linelist_raw %>%
+    
+    # standardize column name syntax
+    janitor::clean_names() %>% 
+    
+    # manually re-name columns
+           # NEW name             # OLD name
+    rename(date_infection       = infection_date,
+           date_hospitalisation = hosp_date,
+           date_outcome         = date_of_outcome) %>% 
+    
+    # remove column
+    select(-c(row_num, merged_header, x28)) %>% 
+  
+    # de-duplicate
+    distinct() %>% 
+
+    # add column
+    mutate(bmi = wt_kg / (ht_cm/100)^2) %>%     
+
+    # convert class of columns
+    mutate(across(contains("date"), as.Date), 
+           generation = as.numeric(generation),
+           age        = as.numeric(age)) %>% 
+    
+    # add column: delay to hospitalisation
+    mutate(days_onset_hosp = as.numeric(date_hospitalisation - date_onset)) %>% 
+    
+    # clean values of hospital column
+    mutate(hospital = recode(hospital,
+                      # OLD = NEW
+                      "Mitylira Hopital"  = "Military Hospital",
+                      "Mitylira Hospital" = "Military Hospital",
+                      "Military Hopital"  = "Military Hospital",
+                      "Port Hopital"      = "Port Hospital",
+                      "Central Hopital"   = "Central Hospital",
+                      "other"             = "Other",
+                      "St. Marks Maternity Hopital (SMMH)" = "St. Mark's Maternity Hospital (SMMH)"
+                      )) %>% 
+    
+    mutate(hospital = replace_na(hospital, "Missing")) %>% 
+
+    # create age_years column (from age and age_unit)
+    mutate(age_years = case_when(
+          age_unit == "years" ~ age,
+          age_unit == "months" ~ age/12,
+          is.na(age_unit) ~ age,
+          TRUE ~ NA_real_)) %>% 
+  
+    mutate(
+          # age categories: custom
+          age_cat = epikit::age_categories(age_years, breakers = c(0, 5, 10, 15, 20, 30, 50, 70)),
+        
+          # age categories: 0 to 85 by 5s
+          age_cat5 = epikit::age_categories(age_years, breakers = seq(0, 85, 5))) %>% 
+    
+    # ABOVE ARE UPSTREAM CLEANING STEPS ALREADY DISCUSSED
+    ###################################################
+    filter(
+          # keep only rows where case_id is not missing
+          !is.na(case_id),  
+          
+          # also filter to keep only the second outbreak
+          date_onset > as.Date("2013-06-01") | (is.na(date_onset) & !hospital %in% c("Hospital A", "Hospital B")))
+```
+
+Row-wise calculations
+
+``` r
+# Sums total number of symptoms as separate column
+linelist %>%
+  rowwise() %>%
+  mutate(num_symptoms = sum(c(fever, chills, cough, aches, vomit) == "yes")) %>% 
+  ungroup() %>% 
+  select(fever, chills, cough, aches, vomit, num_symptoms) # for display
+```
+
+    ## # A tibble: 5,888 x 6
+    ##    fever chills cough aches vomit num_symptoms
+    ##    <chr> <chr>  <chr> <chr> <chr>        <int>
+    ##  1 no    no     yes   no    yes              2
+    ##  2 <NA>  <NA>   <NA>  <NA>  <NA>            NA
+    ##  3 <NA>  <NA>   <NA>  <NA>  <NA>            NA
+    ##  4 no    no     no    no    no               0
+    ##  5 no    no     yes   no    yes              2
+    ##  6 no    no     yes   no    yes              2
+    ##  7 <NA>  <NA>   <NA>  <NA>  <NA>            NA
+    ##  8 no    no     yes   no    yes              2
+    ##  9 no    no     yes   no    yes              2
+    ## 10 no    no     yes   no    no               1
+    ## # ... with 5,878 more rows
+
+``` r
+# Sums number of na date values from all columns labeled "date"
+linelist %>%
+  rowwise() %>%
+  mutate(num_NA_dates = sum(is.na(c_across(contains("date"))))) %>% 
+  ungroup() %>% 
+  select(num_NA_dates, contains("date")) # for display
+```
+
+    ## # A tibble: 5,888 x 5
+    ##    num_NA_dates date_infection date_onset date_hospitalisation date_outcome
+    ##           <int> <date>         <date>     <date>               <date>      
+    ##  1            1 2014-05-08     2014-05-13 2014-05-15           NA          
+    ##  2            1 NA             2014-05-13 2014-05-14           2014-05-18  
+    ##  3            1 NA             2014-05-16 2014-05-18           2014-05-30  
+    ##  4            1 2014-05-04     2014-05-18 2014-05-20           NA          
+    ##  5            0 2014-05-18     2014-05-21 2014-05-22           2014-05-29  
+    ##  6            0 2014-05-03     2014-05-22 2014-05-23           2014-05-24  
+    ##  7            0 2014-05-22     2014-05-27 2014-05-29           2014-06-01  
+    ##  8            0 2014-05-28     2014-06-02 2014-06-03           2014-06-07  
+    ##  9            1 NA             2014-06-05 2014-06-06           2014-06-18  
+    ## 10            1 NA             2014-06-05 2014-06-07           2014-06-09  
+    ## # ... with 5,878 more rows
+
+``` r
+# Can apply max() to get latest or most recent date for each row
+linelist %>%
+  rowwise() %>%
+  mutate(latest_date = max(c_across(contains("date")), na.rm=T)) %>% 
+  ungroup() %>% 
+  select(latest_date, contains("date"))  # for display
+```
+
+    ## # A tibble: 5,888 x 5
+    ##    latest_date date_infection date_onset date_hospitalisation date_outcome
+    ##    <date>      <date>         <date>     <date>               <date>      
+    ##  1 2014-05-15  2014-05-08     2014-05-13 2014-05-15           NA          
+    ##  2 2014-05-18  NA             2014-05-13 2014-05-14           2014-05-18  
+    ##  3 2014-05-30  NA             2014-05-16 2014-05-18           2014-05-30  
+    ##  4 2014-05-20  2014-05-04     2014-05-18 2014-05-20           NA          
+    ##  5 2014-05-29  2014-05-18     2014-05-21 2014-05-22           2014-05-29  
+    ##  6 2014-05-24  2014-05-03     2014-05-22 2014-05-23           2014-05-24  
+    ##  7 2014-06-01  2014-05-22     2014-05-27 2014-05-29           2014-06-01  
+    ##  8 2014-06-07  2014-05-28     2014-06-02 2014-06-03           2014-06-07  
+    ##  9 2014-06-18  NA             2014-06-05 2014-06-06           2014-06-18  
+    ## 10 2014-06-09  NA             2014-06-05 2014-06-07           2014-06-09  
+    ## # ... with 5,878 more rows
