@@ -1,0 +1,182 @@
+---
+title: "Data Management"
+output: github_document
+---
+
+```{r setup, include = FALSE}
+
+pacman::p_load(
+     rio,         # import/export
+     here,        # file locator
+     purrr,       # iteration
+     tidyverse    # data management and visualization
+)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+
+```
+
+## Load Linelist and Simple Loop
+
+```{r}
+# import linelist
+linelist <- import("./data/linelist_cleaned.rds") 
+
+
+# Simple loop
+for (num in c(1,2,3,4,5)) {  # the SEQUENCE is defined (numbers 1 to 5) and loop is opened with "{"
+  print(num + 2)             # The OPERATIONS (add two to each sequence number and print)
+}                            # The loop is closed with "}" 
+
+
+colnames(linelist)
+```
+
+
+# For Loops
+
+Operations
+
+```{r}
+# create container to store results - a character vector
+cases_demographics <- vector(mode = "character", length = nrow(linelist))
+
+# the for loop
+for (i in 1:nrow(linelist)){
+  
+  # OPERATIONS
+  # extract values from linelist for row i, using brackets for indexing
+  row_gender  <- linelist$gender[[i]]
+  row_age     <- linelist$age_years[[i]]    # don't forget to index!
+     
+  # combine gender-age and store in container vector at indexed location
+  cases_demographics[[i]] <- str_c(row_gender, row_age, sep = ",") 
+
+}  # end for loop
+
+
+# display first 10 rows of container
+head(cases_demographics, 10)
+```
+
+
+Empty vectors, dataframes, lists
+
+```{r}
+# Vector
+delays <- vector(
+  mode = "double",                            # we expect to store numbers
+  length = length(unique(linelist$hospital))) # the number of unique hospitals in the dataset
+
+# List
+plots <- vector(mode = "list", length = 16)
+
+# DF
+delays <- data.frame(matrix(ncol = 2, nrow = 3))
+```
+
+
+Printing
+
+```{r}
+# make vector of the hospital names
+hospital_names <- unique(linelist$hospital)
+hospital_names # print
+
+for (hosp in hospital_names){ 
+     hospital_cases <- linelist %>% filter(hospital == hosp)
+     print(nrow(hospital_cases))
+}
+```
+
+
+Looping plots- Original Plot
+
+
+```{r}
+# create 'incidence' object
+outbreak <- incidence2::incidence(   
+     x = linelist,                   # dataframe - complete linelist
+     date_index = date_onset,        # date column
+     interval = "week",              # aggregate counts weekly
+     groups = gender,                # group values by gender
+     na_as_group = TRUE)             # missing gender is own group
+
+# plot epi curve
+plot(outbreak,                       # name of incidence object
+     fill = "gender",                # color bars by gender
+     color = "black",                # outline color of bars
+     title = "Outbreak of ALL cases" # title
+     )
+
+```
+
+
+Looping Plots
+
+
+```{r}
+# make vector of the hospital names
+hospital_names <- unique(linelist$hospital)
+
+# for each name ("hosp") in hospital_names, create and print the epi curve
+for (hosp in hospital_names) {
+     
+     # create incidence object specific to the current hospital
+     outbreak_hosp <- incidence2::incidence(
+          x = linelist %>% filter(hospital == hosp),   # linelist is filtered to the current hospital
+          date_index = date_onset,
+          interval = "week", 
+          groups = gender,
+          na_as_group = TRUE
+     )
+     
+     # Create and save the plot. Title automatically adjusts to the current hospital
+     plot_hosp <- plot(
+       outbreak_hosp,
+       fill = "gender",
+       color = "black",
+       title = stringr::str_glue("Epidemic of cases admitted to {hosp}")
+     )
+     
+     # print the plot for the current hospital
+     print(plot_hosp)
+     
+} # end the for loop when it has been run for every hospital in hospital_names 
+```
+
+
+Tracking Progress of Loop
+
+```{r}
+# loop with code to print progress every 100 iterations
+for (i in seq_len(nrow(linelist))){
+
+  # print progress
+  if(i %% 100==0){    # The %% operator is the remainder
+    print(i)
+
+}}
+```
+
+
+## purrr and lists
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
