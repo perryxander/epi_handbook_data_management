@@ -235,3 +235,66 @@ for (i in seq_len(nrow(linelist))){
     ## [1] 5800
 
 ## purrr and lists
+
+``` r
+pacman::p_load(
+     rio,            # import/export
+     here,           # relative filepaths
+     tidyverse,      # data mgmt and viz
+     writexl,        # write Excel file with multiple sheets
+     readxl          # import Excel with multiple sheets
+)
+```
+
+Import and combine Excel sheets
+
+``` r
+#Create sheet names
+sheet_names <- readxl::excel_sheets("./data/hospital_linelists.xlsx")
+
+sheet_names
+```
+
+    ## [1] "Central Hospital"              "Military Hospital"            
+    ## [3] "Missing"                       "Other"                        
+    ## [5] "Port Hospital"                 "St. Mark's Maternity Hospital"
+
+Imports data and assigns each sheet a name
+
+``` r
+combined <- sheet_names %>% 
+  purrr::set_names() %>% 
+  map(.f = ~import("./data/hospital_linelists.xlsx", which = .x))
+```
+
+Combine previous steps with binds rows
+
+``` r
+sheet_names <- readxl::excel_sheets("./data/hospital_linelists.xlsx")  # extract sheet names
+ 
+combined <- sheet_names %>%                                     # begin with sheet names
+  purrr::set_names() %>%                                        # set their names
+  map(.f = ~import("./data/hospital_linelists.xlsx", which = .x)) %>%  # iterate, import, save in list
+  bind_rows(.id = "origin_sheet") # combine list of data frames, preserving origin in new column 
+```
+
+Similar example that uses map\_at() and c(-1) to skip the first sheet
+
+``` r
+sheet_names <- readxl::excel_sheets("./data/hospital_linelists.xlsx")
+
+combined <- sheet_names %>% 
+     purrr::set_names() %>% 
+     # exclude the first sheet
+     map_at(.f = ~import( "./data/hospital_linelists.xlsx", which = .x),
+            .at = c(-1))
+```
+
+Split data set and export to separate sheets
+
+``` r
+linelist_split <- linelist %>% 
+     group_split(hospital)
+
+view(linelist_split)
+```
