@@ -249,6 +249,13 @@ pacman::p_load(
 Import and combine Excel sheets
 
 ``` r
+#Load data
+get_data("hospital_linelists.xlsx")
+```
+
+    ## v File(s) successfully saved here: C:\Users\perry\OneDrive\Documents\epi_handbook_data_management\data
+
+``` r
 #Create sheet names
 sheet_names <- readxl::excel_sheets("./data/hospital_linelists.xlsx")
 
@@ -296,5 +303,189 @@ Split data set and export to separate sheets
 linelist_split <- linelist %>% 
      group_split(hospital)
 
-view(linelist_split)
+#Names
+names(linelist_split) <- linelist_split %>%   # Assign to names of listed data frames 
+     # Extract the names by doing the following to each data frame: 
+     map(.f = ~pull(.x, hospital)) %>%        # Pull out hospital column
+     map(.f = ~as.character(.x)) %>%          # Convert to character, just in case
+     map(.f = ~unique(.x))                    # Take the unique hospital name
+
+names(linelist_split)
 ```
+
+    ## [1] "Central Hospital"                    
+    ## [2] "Military Hospital"                   
+    ## [3] "Missing"                             
+    ## [4] "Other"                               
+    ## [5] "Port Hospital"                       
+    ## [6] "St. Mark's Maternity Hospital (SMMH)"
+
+More than one group\_split()
+
+``` r
+# split linelist by unique hospital-gender combinations
+linelist_split <- linelist %>% 
+     group_split(hospital, gender)
+
+# extract group_keys() as a dataframe
+groupings <- linelist %>% 
+     group_by(hospital, gender) %>%       
+     group_keys()
+
+groupings      # show unique groupings 
+```
+
+    ## # A tibble: 18 x 2
+    ##    hospital                             gender
+    ##    <chr>                                <chr> 
+    ##  1 Central Hospital                     f     
+    ##  2 Central Hospital                     m     
+    ##  3 Central Hospital                     <NA>  
+    ##  4 Military Hospital                    f     
+    ##  5 Military Hospital                    m     
+    ##  6 Military Hospital                    <NA>  
+    ##  7 Missing                              f     
+    ##  8 Missing                              m     
+    ##  9 Missing                              <NA>  
+    ## 10 Other                                f     
+    ## 11 Other                                m     
+    ## 12 Other                                <NA>  
+    ## 13 Port Hospital                        f     
+    ## 14 Port Hospital                        m     
+    ## 15 Port Hospital                        <NA>  
+    ## 16 St. Mark's Maternity Hospital (SMMH) f     
+    ## 17 St. Mark's Maternity Hospital (SMMH) m     
+    ## 18 St. Mark's Maternity Hospital (SMMH) <NA>
+
+``` r
+# Combine into one name value 
+names(linelist_split) <- groupings %>% 
+     mutate(across(everything(), replace_na, "Missing")) %>%  # replace NA with "Missing" in all columns
+     unite("combined", sep = "-") %>%                         # Unite all column values into one
+     setNames(NULL) %>% 
+     as_vector() %>% 
+     as.list()
+```
+
+Export as Excel sheets
+
+``` r
+linelist_split %>% 
+     writexl::write_xlsx(path = here("data", "hospital_linelists.xlsx"))
+```
+
+    ## Warning in writexl::write_xlsx(., path = here("data",
+    ## "hospital_linelists.xlsx")): Truncating sheet name(s) to 31 characters
+
+    ## Warning in writexl::write_xlsx(., path = here("data",
+    ## "hospital_linelists.xlsx")): Deduplicating sheet names
+
+Export as CSV files
+
+``` r
+names(linelist_split) %>%
+     map(.f = ~export(linelist_split[[.x]], file = str_glue("{here('data')}/{.x}.csv")))
+```
+
+    ## [[1]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/Central Hospital-f.csv"
+    ## 
+    ## [[2]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/Central Hospital-m.csv"
+    ## 
+    ## [[3]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/Central Hospital-Missing.csv"
+    ## 
+    ## [[4]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/Military Hospital-f.csv"
+    ## 
+    ## [[5]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/Military Hospital-m.csv"
+    ## 
+    ## [[6]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/Military Hospital-Missing.csv"
+    ## 
+    ## [[7]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/Missing-f.csv"
+    ## 
+    ## [[8]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/Missing-m.csv"
+    ## 
+    ## [[9]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/Missing-Missing.csv"
+    ## 
+    ## [[10]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/Other-f.csv"
+    ## 
+    ## [[11]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/Other-m.csv"
+    ## 
+    ## [[12]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/Other-Missing.csv"
+    ## 
+    ## [[13]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/Port Hospital-f.csv"
+    ## 
+    ## [[14]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/Port Hospital-m.csv"
+    ## 
+    ## [[15]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/Port Hospital-Missing.csv"
+    ## 
+    ## [[16]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/St. Mark's Maternity Hospital (SMMH)-f.csv"
+    ## 
+    ## [[17]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/St. Mark's Maternity Hospital (SMMH)-m.csv"
+    ## 
+    ## [[18]]
+    ## [1] "C:/Users/perry/OneDrive/Documents/epi_handbook_data_management/data/St. Mark's Maternity Hospital (SMMH)-Missing.csv"
+
+Create a function- multiple plots using ggplots example
+
+``` r
+# load package for plotting elements from list
+pacman::p_load(ggpubr)
+
+# map across the vector of 6 hospital "names" (created earlier)
+# use the ggplot function specified
+# output is a list with 6 ggplots
+
+hospital_names <- unique(linelist$hospital)
+
+my_plots <- map(
+  .x = hospital_names,
+  .f = ~ggplot(data = linelist %>% filter(hospital == .x)) +
+                geom_histogram(aes(x = date_onset)) +
+                labs(title = .x)
+)
+
+# print the ggplots (they are stored in a list)
+ggarrange(plotlist = my_plots, ncol = 2, nrow = 3)
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 45 rows containing non-finite values (stat_bin).
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 71 rows containing non-finite values (stat_bin).
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 13 rows containing non-finite values (stat_bin).
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 75 rows containing non-finite values (stat_bin).
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 34 rows containing non-finite values (stat_bin).
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 18 rows containing non-finite values (stat_bin).
+
+<img src="Iteration_loops_list_files/figure-gfm/unnamed-chunk-18-1.png" width="90%" />

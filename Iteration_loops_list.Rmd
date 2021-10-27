@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 pacman::p_load(epirhandbook)
 
-get_data("hospital_linelists.xlsx")
+
 
 ```
 
@@ -189,6 +189,9 @@ Import and combine Excel sheets
 
 
 ```{r}
+#Load data
+get_data("hospital_linelists.xlsx")
+
 #Create sheet names
 sheet_names <- readxl::excel_sheets("./data/hospital_linelists.xlsx")
 
@@ -240,9 +243,86 @@ Split data set and export to separate sheets
 linelist_split <- linelist %>% 
      group_split(hospital)
 
-view(linelist_split)
+#Names
+names(linelist_split) <- linelist_split %>%   # Assign to names of listed data frames 
+     # Extract the names by doing the following to each data frame: 
+     map(.f = ~pull(.x, hospital)) %>%        # Pull out hospital column
+     map(.f = ~as.character(.x)) %>%          # Convert to character, just in case
+     map(.f = ~unique(.x))                    # Take the unique hospital name
+
+names(linelist_split)
 ```
 
+
+More than one group_split()
+
+
+```{r}
+# split linelist by unique hospital-gender combinations
+linelist_split <- linelist %>% 
+     group_split(hospital, gender)
+
+# extract group_keys() as a dataframe
+groupings <- linelist %>% 
+     group_by(hospital, gender) %>%       
+     group_keys()
+
+groupings      # show unique groupings 
+```
+
+
+```{r}
+# Combine into one name value 
+names(linelist_split) <- groupings %>% 
+     mutate(across(everything(), replace_na, "Missing")) %>%  # replace NA with "Missing" in all columns
+     unite("combined", sep = "-") %>%                         # Unite all column values into one
+     setNames(NULL) %>% 
+     as_vector() %>% 
+     as.list()
+```
+
+
+Export as Excel sheets
+
+
+```{r}
+linelist_split %>% 
+     writexl::write_xlsx(path = here("data", "hospital_linelists.xlsx"))
+```
+
+
+Export as CSV files
+
+
+```{r}
+names(linelist_split) %>%
+     map(.f = ~export(linelist_split[[.x]], file = str_glue("{here('data')}/{.x}.csv")))
+```
+
+
+Create a function- multiple plots using ggplots example
+
+
+```{r}
+# load package for plotting elements from list
+pacman::p_load(ggpubr)
+
+# map across the vector of 6 hospital "names" (created earlier)
+# use the ggplot function specified
+# output is a list with 6 ggplots
+
+hospital_names <- unique(linelist$hospital)
+
+my_plots <- map(
+  .x = hospital_names,
+  .f = ~ggplot(data = linelist %>% filter(hospital == .x)) +
+                geom_histogram(aes(x = date_onset)) +
+                labs(title = .x)
+)
+
+# print the ggplots (they are stored in a list)
+ggarrange(plotlist = my_plots, ncol = 2, nrow = 3)
+```
 
 
 
