@@ -1,0 +1,27 @@
+---
+title: "Temp_dataset"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+library(janitor)
+```
+
+```{r}
+temp <- read_excel("C:/Users/perry/OneDrive/Documents/biostatistics1/temps.xls")
+
+head(temp)
+
+temp %>%
+  tabyl(gender) %>%
+
+  adorn_percentages()
+```
+

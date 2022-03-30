@@ -489,3 +489,51 @@ ggarrange(plotlist = my_plots, ncol = 2, nrow = 3)
     ## Warning: Removed 18 rows containing non-finite values (stat_bin).
 
 <img src="Iteration_loops_list_files/figure-gfm/unnamed-chunk-18-1.png" width="90%" />
+
+Create Function
+
+``` r
+# Create function
+make_epicurve <- function(hosp_name){
+  
+  ggplot(data = linelist %>% filter(hospital == hosp_name)) +
+    geom_histogram(aes(x = date_onset)) +
+    theme_classic()+
+    labs(title = hosp_name)
+  
+}
+```
+
+``` r
+# mapping
+my_plots <- map(hospital_names, ~make_epicurve(hosp_name = .x))
+
+# print the ggplots (they are stored in a list)
+ggarrange(plotlist = my_plots, ncol = 2, nrow = 3)
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 45 rows containing non-finite values (stat_bin).
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 71 rows containing non-finite values (stat_bin).
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 13 rows containing non-finite values (stat_bin).
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 75 rows containing non-finite values (stat_bin).
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 34 rows containing non-finite values (stat_bin).
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 18 rows containing non-finite values (stat_bin).
+
+<img src="Iteration_loops_list_files/figure-gfm/unnamed-chunk-20-1.png" width="90%" />

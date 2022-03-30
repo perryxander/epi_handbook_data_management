@@ -325,4 +325,31 @@ ggarrange(plotlist = my_plots, ncol = 2, nrow = 3)
 ```
 
 
+Create Function
+
+
+```{r}
+# Create function
+make_epicurve <- function(hosp_name){
+  
+  ggplot(data = linelist %>% filter(hospital == hosp_name)) +
+    geom_histogram(aes(x = date_onset)) +
+    theme_classic()+
+    labs(title = hosp_name)
+  
+}
+```
+
+```{r}
+# mapping
+my_plots <- map(hospital_names, ~make_epicurve(hosp_name = .x))
+
+# print the ggplots (they are stored in a list)
+ggarrange(plotlist = my_plots, ncol = 2, nrow = 3)
+```
+
+
+
+
+
 
